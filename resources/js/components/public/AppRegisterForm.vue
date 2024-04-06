@@ -46,14 +46,14 @@ export default {
                 surname: yup.string().required('Введите фамилию').min(2, 'От 2-х симвоволов'),
                 name: yup.string().required('Введите имя').min(2, 'От 2-х симвоволов'),
                 nickname: yup.string().required('Введите никнейм').min(2),
-                university_id: yup.object().nullable(),
+                // university_id: yup.object().nullable(),
             }),
         ];
         const register = async (data) => {
             try {
                 loading.value = true;
                 await axios.get('/sanctum/csrf-cookie');
-                data.university_id = data.university_id ? data.university_id.code : null;
+                // data.university_id = data.university_id ? data.university_id.code : null;
                 await axios.post('/register', data);
                 store.dispatch('auth/login', {
                     email: data.email,

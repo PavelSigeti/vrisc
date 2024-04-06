@@ -162,6 +162,26 @@ export default [
     },
 
     {
+        path: '/dashboard/page/:slug',
+        name: 'page',
+        component: () => import('../views/user/Page.vue'),
+        meta: {
+            layout: 'Auth',
+            auth: true,
+        }
+    },
+
+    {
+        path: '/page/:slug',
+        name: 'home-page',
+        component: () => import('../views/PublicPage.vue'),
+        meta: {
+            layout: 'HomePage',
+            auth: false,
+        }
+    },
+
+    {
         path: '/:pathMatch(.*)*',
         name: '404',
         component: () => import('../views/NotFound.vue'),

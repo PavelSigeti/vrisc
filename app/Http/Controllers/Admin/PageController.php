@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Repositories\PageRepository;
 use App\Http\Requests\PageStoreRequest;
+use App\Http\Requests\PageUpdateRequest;
 use App\Models\Page;
 use Illuminate\Support\Str;
 
@@ -27,10 +28,10 @@ class PageController extends Controller
         return $this->pageRepository->getById($id);
     }
 
-    public function update(PageStoreRequest $request)
+    public function update(PageUpdateRequest $request, $id)
     {
         $slug = Str::slug($request->slug, '-');
-        $page = Page::query()->update([
+        Page::query()->find($id)->update([
             'title' => $request->title,
             'slug' => $slug,
             'text' => $request->text,

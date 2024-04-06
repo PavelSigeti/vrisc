@@ -9,13 +9,13 @@
                 <div class="col-12">
                     <div class="tabs">
                         <div
-                            :class="['tab-item', {'tab-item__active': section === 'ended'}]"
-                            @click="section = 'ended'"
-                        >Прошедшие регаты</div>
-                        <div
                             :class="['tab-item', {'tab-item__active': section === 'actual'}]"
                             @click="section = 'actual'"
                         >Актуальные регаты</div>
+                        <div
+                            :class="['tab-item', {'tab-item__active': section === 'ended'}]"
+                            @click="section = 'ended'"
+                        >Прошедшие регаты</div>
                     </div>
                 </div>
                 <div class="col-12">
@@ -39,7 +39,7 @@ export default {
         AppHomeEndedStage, AppHomeActualStage, AppHomeHeader,
     },
     setup() {
-        const section = ref('ended');
+        const section = ref('actual');
 
         return {
             section,

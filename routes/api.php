@@ -98,6 +98,8 @@ Route::group([], function () {
 
     Route::get('/home/stage/ended',[\App\Http\Controllers\Guest\StageController::class, 'getEnded']);
     Route::get('/home/stage/actual',[\App\Http\Controllers\Guest\StageController::class, 'getActual']);
+    
+    Route::get('/page/{slug}', [\App\Http\Controllers\User\PageController::class, 'show']);
 
     Route::get('/stage/{id}/show', [\App\Http\Controllers\Guest\StageController::class, 'show']);
 });

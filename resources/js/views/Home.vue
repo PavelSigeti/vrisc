@@ -31,8 +31,8 @@
                         <div class="home-links">
                             <router-link to="/stage" class="home-link"><div class="home-link__hover"></div><span>Регаты</span></router-link>
                             <router-link to="/rating" class="home-link"><div class="home-link__hover"></div><span>Рейтинг</span></router-link>
-                            <div class="home-link"><div class="home-link__hover"></div><span>Регламент</span></div>
-                            <div class="home-link"><div class="home-link__hover"></div><span>Инструкция</span></div>
+                            <router-link to="/page/reglament" class="home-link"><div class="home-link__hover"></div><span>Регламент</span></router-link>
+                            <a target="_blank" href="https://docs.google.com/document/d/1eHGrImGD-XCrVBPEO8aD30q2aTWq75KhhB1i2yGOO7s/edit" class="home-link"><div class="home-link__hover"></div><span>Инструкция</span></a>
                         </div>
                     </div>
                 </div>

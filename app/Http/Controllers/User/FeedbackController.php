@@ -21,7 +21,8 @@ class FeedbackController extends Controller
            'text' => $request->text,
         ]);
 
-        Mail::to('xoqpox_Xoqpox@rambler.ru')->send(new FeedbackMail($feedback));
+//        Mail::to('xoqpox_xoqpox@rambler.ru')->send(new FeedbackMail($feedback));
+        Mail::to('sigeti385@gmail.com')->send(new FeedbackMail($feedback));
 
         return ['Запрос отправлен!'];
     }

@@ -11,7 +11,7 @@
                             <p>Имя: <span class="b500">{{user.name}}</span></p>
                             <p>Фамилия: <span class="b500">{{user.surname}}</span></p>
                             <p>E-mail: <span class="b500">{{user.email}}</span></p>
-                            <p v-if="user.university">Университет: <span class="b500">{{user.university}}</span></p>
+<!--                            <p v-if="user.university">Университет: <span class="b500">{{user.university}}</span></p>-->
                         </div>
                         <form @submit.prevent="submit">
                             <div class="form-control">
@@ -21,17 +21,17 @@
                                 </Field>
                                 <ErrorMessage class="alert" name="nickname" />
                             </div>
-                            <div class="form-control" v-if="!user.university">
-                                <label for="university_id">Ваш университет</label>
-                                <Field name="university_id" v-slot="{ field }">
-                                    <v-select
-                                        :options="universities"
-                                        placeholder="Выберите университет"
-                                        v-bind="field">
-                                    </v-select>
-                                    <ErrorMessage class="alert" name="university_id" />
-                                </Field>
-                            </div>
+<!--                            <div class="form-control" v-if="!user.university">-->
+<!--                                <label for="university_id">Ваш университет</label>-->
+<!--                                <Field name="university_id" v-slot="{ field }">-->
+<!--                                    <v-select-->
+<!--                                        :options="universities"-->
+<!--                                        placeholder="Выберите университет"-->
+<!--                                        v-bind="field">-->
+<!--                                    </v-select>-->
+<!--                                    <ErrorMessage class="alert" name="university_id" />-->
+<!--                                </Field>-->
+<!--                            </div>-->
                             <button class="btn btn-default btn-full-width">Сохранить</button>
                         </form>
                     </div>
@@ -69,7 +69,7 @@ export default {
 
         const schema = yup.object({
             nickname: yup.string().required('Введите никнейм').min(2, 'От 2-х символов').max(32, 'До 32-х символов'),
-            university_id: yup.object().nullable(),
+            // university_id: yup.object().nullable(),
         });
 
         const { values, handleSubmit } = useForm({

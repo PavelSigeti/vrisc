@@ -17,6 +17,11 @@ class PageRepository extends CoreRepository
         return $this->startConditions()->find($id);
     }
 
+    public function getBySlug($slug)
+    {
+        return $this->startConditions()->where('slug', $slug)->first();
+    }
+
     public function getAll()
     {
         $columns = [
