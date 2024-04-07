@@ -35,7 +35,7 @@ class FeedbackMail extends Mailable
         $user = Auth::user();
 
         $this->subject('Новый Feedback #'.$feedback->id)
-            ->from('no-reply@vrics.ru', 'VRISC' )
+            ->from('info@vrisc.ru', 'VRISC' )
             ->view('feedbackmail', compact('feedback', 'user'));
     }
 }

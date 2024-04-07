@@ -53,7 +53,7 @@ export default {
             try {
                 loading.value = true;
                 await axios.get('/sanctum/csrf-cookie');
-                // data.university_id = data.university_id ? data.university_id.code : null;
+                data.university_id = data.university_id ? data.university_id.code : null;
                 await axios.post('/register', data);
                 store.dispatch('auth/login', {
                     email: data.email,

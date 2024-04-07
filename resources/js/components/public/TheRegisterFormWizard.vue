@@ -67,7 +67,7 @@
 <!--                    <ErrorMessage class="alert" name="university_id" />-->
 <!--                </Field>-->
 <!--            </div>-->
-            <div class="form-info mb15">Если вашего университета нет, то пропусте это поле</div>
+<!--            <div class="form-info mb15">Если вашего университета нет, то пропусте это поле</div>-->
             <div class="form-info mb15">Отправляя форму, вы соглашаетесь на обработку &nbsp <a class="underline link" target="_blank" href="/page/privacy">персональных данных</a></div>
             <button class="btn btn-default btn-home">Зарегистрироваться</button>
             <div class="form-info jcc"><span class="underline link" @click="step=0">Вернуться назад (2 из 2)</span></div>
