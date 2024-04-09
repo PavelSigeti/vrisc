@@ -32,7 +32,7 @@
                             <router-link to="/stage" class="home-link"><div class="home-link__hover"></div><span>Регаты</span></router-link>
                             <router-link to="/rating" class="home-link"><div class="home-link__hover"></div><span>Рейтинг</span></router-link>
                             <router-link to="/page/reglament" class="home-link"><div class="home-link__hover"></div><span>Регламент</span></router-link>
-                            <a target="_blank" href="https://docs.google.com/document/d/109Pjc4rcT1oR_ONM1_7u-VjHUUw_dcEM/edit" class="home-link"><div class="home-link__hover"></div><span>Инструкция</span></a>
+                            <router-link to="/page/info" class="home-link"><div class="home-link__hover"></div><span>Инструкция</span></router-link>
                         </div>
                     </div>
                 </div>

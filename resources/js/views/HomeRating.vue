@@ -6,22 +6,22 @@
                 <div class="col-12 mt30 mb30">
                     <h1>Рейтинг кубка</h1>
                 </div>
-                <div class="col-12">
-                    <div class="tabs">
-                        <div
-                            :class="['tab-item', {'tab-item__active': section === 'user'}]"
-                            @click="section = 'user'"
-                        >Личный зачет</div>
-                        <div
-                            :class="['tab-item', {'tab-item__active': section === 'team'}]"
-                            @click="section = 'team'"
-                        >Командный зачет</div>
-                        <div
-                            :class="['tab-item', {'tab-item__active': section === 'university'}]"
-                            @click="section = 'university'"
-                        >Университетский зачет</div>
-                    </div>
-                </div>
+<!--                <div class="col-12">-->
+<!--                    <div class="tabs">-->
+<!--                        <div-->
+<!--                            :class="['tab-item', {'tab-item__active': section === 'user'}]"-->
+<!--                            @click="section = 'user'"-->
+<!--                        >Личный зачет</div>-->
+<!--                        <div-->
+<!--                            :class="['tab-item', {'tab-item__active': section === 'team'}]"-->
+<!--                            @click="section = 'team'"-->
+<!--                        >Командный зачет</div>-->
+<!--                        <div-->
+<!--                            :class="['tab-item', {'tab-item__active': section === 'university'}]"-->
+<!--                            @click="section = 'university'"-->
+<!--                        >Университетский зачет</div>-->
+<!--                    </div>-->
+<!--                </div>-->
                 <div class="col-12">
                     <keep-alive>
                         <AppUsersRating v-if="section === 'user'" />
