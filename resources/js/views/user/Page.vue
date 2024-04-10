@@ -1,5 +1,5 @@
 <template>
-    <AppHeader>{{page.title}} {{route.params.slug}}</AppHeader>
+    <AppHeader>{{page.title}}</AppHeader>
     <main>
         <div class="container-fluid g-0">
             <div class="row">
