@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-12">
                     <div class="dashboard-item">
-                        <AppUsersTables v-if="status === 'active' && users" :users="users"></AppUsersTables>
+                        <AppUsersTables v-if="status === 'active' && users" :users="users" :id="id" @upd="status = 'group'"></AppUsersTables>
 
                         <div class="stage-table" v-if="status !== 'finished' && status !== 'active'" v-for="(groups, raceStatus, idx) in statusGroup" :key="idx">
                             <AppRaceTable v-for="groupId in groups"

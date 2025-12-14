@@ -6,7 +6,7 @@ use App\Actions\Admin\CalcTotalAction;
 use App\Actions\Admin\CreateFleetsAction;
 use App\Actions\Admin\FinishStage;
 use App\Actions\Admin\SortGroupResultAction;
-use App\Actions\Admin\StageStartAction;
+use App\Actions\Admin\StageManualGroupsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Repositories\RaceRepository;
 use App\Http\Repositories\StageRepository;
@@ -14,6 +14,9 @@ use App\Http\Repositories\UserRepository;
 use App\Http\Requests\StageStoreRequest;
 use App\Http\Requests\StageUpdateRequest;
 use App\Models\Stage;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StageController extends Controller
 {
@@ -52,13 +55,29 @@ class StageController extends Controller
         return $this->raceRepository->getStageStatusGroup($id);
     }
 
-    public function startStage($id, StageStartAction $action)
+    public function createManualGroups($id, Request $request, StageManualGroupsAction $action)
     {
-        $stage = $this->stageRepository->getByIdWithRaces($id);
-        if($stage->status !== 'active') {
-            abort(400, 'Этап уже начался, обновите страницу');
-        }
-        return $action($stage);
+        return DB::transaction(function () use ($id, $request, $action) {
+            $stage = $this->stageRepository->getById($id);
+            
+            $request->validate([
+                'groups' => 'required|array',
+                'groups.*' => 'required|integer|min:1',
+            ]);
+            
+            if ($stage->status !== 'active') {
+                abort(400, 'Этап уже начался, обновите страницу');
+            }
+            
+            $stageUsersCount = $stage->users()->count();
+            $distributedUsers = count($request->groups);
+            
+            if ($stageUsersCount !== $distributedUsers) {
+                abort(400, 'Не все пользователи распределены по группам');
+            }
+ 
+            return $action($stage, $request->groups);
+        });
     }
 
     public function finish($id, SortGroupResultAction $sortAction, FinishStage $finishStage)
