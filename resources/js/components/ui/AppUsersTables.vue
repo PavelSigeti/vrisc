@@ -5,6 +5,7 @@
                 <th>#</th>
                 <th>Яхтсмен</th>
                 <th>Группа</th>
+                <th>Удаление</th>
             </tr>
         </thead>
         <tbody>
@@ -23,6 +24,9 @@
                         v-model="result[user.id]"
                         min="1"
                     >
+                </td>
+                <td>
+                    <button class="btn btn-default btn-settings" @click="remove(user.id)">Удалить</button>
                 </td>
             </tr>
         </tbody>
@@ -52,36 +56,39 @@ const props = defineProps({
     users: {
         type: Array,
         default: () => []
+    }, 
+    status: {
+        type: String,
+        required: true
     }
 });
 
-const emit = defineEmits(['upd']);
-
+const emit = defineEmits(['create-groups', 'users-updated']);
+const status = ref(props.status);
 const result = ref({});
 
-watch(() => props.users, (newUsers) => {
-    result.value = {};
-    newUsers.forEach(user => {
-        if (user.group) {
-            result.value[user.id] = user.group;
-        } else {
-            result.value[user.id] = 1;
-        }
-    });
-}, { immediate: true, deep: true });
-
-const isAllUsersGrouped = computed(() => {
-    if (!props.users || props.users.length === 0) return false;
+const init = (usersArray) => {
+    const groups = {};
     
-    return props.users.every(user => 
+    if (usersArray && usersArray.length > 0) {
+        usersArray.forEach(user => {
+            groups[user.id] = 1;
+        });
+    }
+    
+    result.value = groups;
+};
+
+init(props.users);
+
+const validateGroups = () => {
+    const allUsersGrouped = props.users.every(user => 
         result.value[user.id] !== undefined && 
         result.value[user.id] !== null && 
         result.value[user.id] >= 1
     );
-});
-
-const validateGroups = () => {
-    if (!isAllUsersGrouped.value) {
+    
+    if (!allUsersGrouped) {
         store.dispatch('notification/displayMessage', {
             type: 'error',
             value: 'Не все яхтсмены распределены по группам',
@@ -121,9 +128,10 @@ const createGroup = async () => {
         });
 
         if (ans.data.result) {
-            emit('upd');
+            status.value = ans.data.status;
+            emit('create-groups', ans.data.status);
             store.dispatch('notification/displayMessage', {
-                type: 'success',
+                type: 'primary',
                 value: 'Группы успешно сформированы и этап начат',
             });
 
@@ -141,6 +149,23 @@ const createGroup = async () => {
         });
     }
 };
+
+const remove = async (userId) => {
+    const ans = await axios.post(`/api/admin/stage/${props.id}/remove-user/${userId}`);
+    if (ans.data.result) {
+        emit('users-updated');
+        store.dispatch('notification/displayMessage', {
+            type: 'primary',
+            value: 'Участник удален'
+        });
+    } else {
+        store.dispatch('notification/displayMessage', {
+            type: 'error',
+            value: ans.data.msg,
+        });
+    }
+};
+
 </script>
 
 <style scoped>
