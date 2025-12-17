@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-12">
                     <div class="dashboard-item">
-                        <AppUsersTables v-if="status === 'active' && users" :users="users"></AppUsersTables>
+                        <AppUsersTables v-if="status === 'active' && users" :users="users" :id="id" :status="status" @create-groups="statusGroupFetch" @users-updated="usersFetch"></AppUsersTables>
 
                         <div class="stage-table" v-if="status !== 'finished' && status !== 'active'" v-for="(groups, raceStatus, idx) in statusGroup" :key="idx">
                             <AppRaceTable v-for="groupId in groups"
@@ -66,7 +66,7 @@
                             ></AppRaceTable>
                         </div>
 
-                        <TheStageStatus v-if="status" :status="status" :id="id" @update="statusGroupFetch"/>
+                        <TheStageStatus v-if="status !== 'active'" :status="status" :id="id" @update="statusGroupFetch" ref="stageStatusComponent"/>
 
                         <AppResultTable v-if="status !== 'active'" :id="id" ref="resultComponent" />
                     </div>
@@ -121,6 +121,7 @@ export default {
 
         const statusGroup = ref();
         const resultComponent = ref();
+        const stageStatusComponent = ref();
 
         const statusGroupFetch = async (payload) => {
             try {
@@ -130,6 +131,19 @@ export default {
                 if(resultComponent.value) {
                     resultComponent.value.update();
                 }
+                if(stageStatusComponent.value) {
+                    stageStatusComponent.value.update();
+                }
+                
+            } catch (e) {
+                console.log(e.message);
+            }
+        }
+
+        const usersFetch = async () => {
+            try {
+                const statusGroupData = await axios.get(`/api/admin/stage/${id}/edit`);
+                users.value = statusGroupData.data.users;
             } catch (e) {
                 console.log(e.message);
             }
@@ -200,9 +214,9 @@ export default {
             register_start, register_end, race_start,
             title, excerpt, description,
             submit, users, status,
-            id, statusGroup, child,
+            id, statusGroup, child, stageStatusComponent,
             race_amount_drop, race_amount_group_drop, race_amount_fleet_drop,
-            statusGroupFetch, resultComponent, h1,
+            statusGroupFetch, usersFetch, resultComponent, h1,
             loading, participant_text,
         }
     }

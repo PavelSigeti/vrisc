@@ -6,7 +6,7 @@ use App\Actions\Admin\CalcTotalAction;
 use App\Actions\Admin\CreateFleetsAction;
 use App\Actions\Admin\FinishStage;
 use App\Actions\Admin\SortGroupResultAction;
-use App\Actions\Admin\StageStartAction;
+use App\Actions\Admin\StageManualGroupsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Repositories\RaceRepository;
 use App\Http\Repositories\StageRepository;
@@ -14,6 +14,9 @@ use App\Http\Repositories\UserRepository;
 use App\Http\Requests\StageStoreRequest;
 use App\Http\Requests\StageUpdateRequest;
 use App\Models\Stage;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StageController extends Controller
 {
@@ -52,13 +55,28 @@ class StageController extends Controller
         return $this->raceRepository->getStageStatusGroup($id);
     }
 
-    public function startStage($id, StageStartAction $action)
+    public function createManualGroups($id, Request $request, StageManualGroupsAction $stageManualGroupsAction)
     {
-        $stage = $this->stageRepository->getByIdWithRaces($id);
-        if($stage->status !== 'active') {
-            abort(400, 'Этап уже начался, обновите страницу');
-        }
-        return $action($stage);
+        return DB::transaction(function () use ($id, $request, $stageManualGroupsAction) {
+            $stage = $this->stageRepository->getById($id);
+            
+            $request->validate([
+                'groups' => 'required|array',
+                'groups.*' => 'required|integer|min:1',
+            ]);
+            
+            if ($stage->status !== 'active') {
+                abort(400, 'Этап уже начался, обновите страницу');
+            }
+
+            $stageUsersCount = $stage->users()->count();
+            $distributedUsers = count($request->groups);
+            
+            if ($stageUsersCount !== $distributedUsers) {
+                abort(400, 'Не все пользователи распределены по группам');
+            }
+            return $stageManualGroupsAction($stage, $request->groups);
+        });
     }
 
     public function finish($id, SortGroupResultAction $sortAction, FinishStage $finishStage)
@@ -67,7 +85,7 @@ class StageController extends Controller
         $stage = $this->stageRepository->getById($id);
         $status = $stage->status;
 
-        if($status === 'fleet' || $status === 'default') {
+        if($status === 'fleet' || $status === 'default' || $status === 'group') {
             $groups = $this->raceRepository->getStageStatusGroup($id)[$status];
             $drops = $this->stageRepository->getStageDrops($id, $status);
             $groupsResult = [];
@@ -83,27 +101,27 @@ class StageController extends Controller
         return abort(400, 'Этап уже закончился, обновите страницу');
     }
 
-    public function finishGroup($id, SortGroupResultAction $sortAction, CreateFleetsAction $createFleetsAction)
-    {
-        $stage = $this->stageRepository->getById($id);
-        $status = $stage->status;
+    // public function finishGroup($id, SortGroupResultAction $sortAction, CreateFleetsAction $createFleetsAction)
+    // {
+    //     $stage = $this->stageRepository->getById($id);
+    //     $status = $stage->status;
 
-        if($status !== 'group') {
-            abort(400, 'Групповой этап уже закончился, обновите страницу');
-        }
+    //     if($status !== 'group') {
+    //         abort(400, 'Групповой этап уже закончился, обновите страницу');
+    //     }
 
-        $groups = $this->raceRepository->getStageStatusGroup($id)[$status];
+    //     $groups = $this->raceRepository->getStageStatusGroup($id)[$status];
 
-        $drops = $this->stageRepository->getStageDrops($id, $status);
+    //     $drops = $this->stageRepository->getStageDrops($id, $status);
 
-        $groupsResult = [];
-        foreach($groups as $groupId) {
-            $result = $this->userRepository->getGroupData($id, $groupId, $status);
-            $groupsResult[$groupId] = $sortAction($result, $drops);
-        }
+    //     $groupsResult = [];
+    //     foreach($groups as $groupId) {
+    //         $result = $this->userRepository->getGroupData($id, $groupId, $status);
+    //         $groupsResult[$groupId] = $sortAction($result, $drops);
+    //     }
 
-        return $createFleetsAction($groupsResult, $stage);
-    }
+    //     return $createFleetsAction($groupsResult, $stage);
+    // }
 
     public function getTotal($stageId, $groupId, $status, CalcTotalAction $action)
     {
@@ -111,6 +129,23 @@ class StageController extends Controller
         $drops = $this->stageRepository->getStageDrops($stageId, $status);
 
         return $action($result, $drops);
+    }
+
+    public function removeUserFromStage($stageId, $userId)
+    {
+        $user = User::find($userId);
+        $stage = $this->stageRepository->getById($stageId);
+        
+        if ($stage->status === 'active') {
+            $user->stages()->detach($stageId);
+            
+            return ['result' => true];
+        } else {
+            return [
+                'result' => false, 
+                'msg' => 'Ошибка, этап находится не в статусе активной регистрации'
+            ];
+        }
     }
 
     public function update(StageUpdateRequest $request, $id)
