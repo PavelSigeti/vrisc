@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-12">
                     <div class="dashboard-item">
-                        <AppUsersTables v-if="status === 'active' && users" :users="users" :id="id" :status="status" @create-groups="statusGroupFetch" @users-updated="usersFetch"></AppUsersTables>
+                        <AppUsersTablesEdit v-if="status === 'active' && users" :users="users" :id="id" :status="status" @create-groups="statusGroupFetch" @users-updated="usersFetch"></AppUsersTablesEdit>
 
                         <div class="stage-table" v-if="status !== 'finished' && status !== 'active'" v-for="(groups, raceStatus, idx) in statusGroup" :key="idx">
                             <AppRaceTable v-for="groupId in groups"
@@ -82,7 +82,7 @@ import {onMounted, ref} from 'vue';
 import axios from "axios";
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
-import AppUsersTables from "@/components/ui/AppUsersTables.vue";
+import AppUsersTablesEdit from "@/components/ui/AppUsersTablesEdit.vue";
 import AppRaceTable from "@/components/admin/AppRaceTable.vue";
 import TheStageStatus from "@/components/admin/TheStageStatus.vue";
 import AppResultTable from "@/components/public/AppResultTable.vue";
@@ -93,7 +93,7 @@ import AppHeader from "@/components/ui/AppHeader.vue";
 export default {
     name: "stage.edit",
     components: {
-        AppUsersTables, AppRaceTable, TheStageStatus,
+        AppUsersTablesEdit, AppRaceTable, TheStageStatus,
         AppResultTable, AppLoader, AppEditor,
         AppHeader,
     },
