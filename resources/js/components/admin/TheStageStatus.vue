@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import axios from "axios";
 import {useStore} from 'vuex';
 
@@ -17,6 +17,10 @@ export default {
         const status = ref(props.status);
         const id = props.id;
         const store = useStore();
+
+    watch(() => props.status, (newValue) => {
+        status.value = newValue;
+    }, { immediate: true });
 
         // const startStage = async () => {
         //     try {

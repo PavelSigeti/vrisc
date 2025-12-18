@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-12">
                     <div class="dashboard-item">
-                        <AppUsersTables v-if="status === 'active' && users" :users="users" :id="id" :status="status" @create-groups="statusGroupFetch" @users-updated="usersFetch"></AppUsersTables>
+                        <AppUsersTablesEdit v-if="status === 'active' && users" :users="users" :id="id" :status="status" @create-groups="statusGroupFetch" @users-updated="usersFetch"></AppUsersTablesEdit>
 
                         <div class="stage-table" v-if="status !== 'finished' && status !== 'active'" v-for="(groups, raceStatus, idx) in statusGroup" :key="idx">
                             <AppRaceTable v-for="groupId in groups"
@@ -66,7 +66,7 @@
                             ></AppRaceTable>
                         </div>
 
-                        <TheStageStatus v-if="status !== 'active'" :status="status" :id="id" @update="statusGroupFetch" ref="stageStatusComponent"/>
+                        <TheStageStatus v-if="status !== 'active'" :status="status" :id="id" @update="statusGroupFetch"/>
 
                         <AppResultTable v-if="status !== 'active'" :id="id" ref="resultComponent" />
                     </div>
@@ -82,7 +82,7 @@ import {onMounted, ref} from 'vue';
 import axios from "axios";
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
-import AppUsersTables from "@/components/ui/AppUsersTables.vue";
+import AppUsersTablesEdit from "@/components/ui/AppUsersTablesEdit.vue";
 import AppRaceTable from "@/components/admin/AppRaceTable.vue";
 import TheStageStatus from "@/components/admin/TheStageStatus.vue";
 import AppResultTable from "@/components/public/AppResultTable.vue";
@@ -93,7 +93,7 @@ import AppHeader from "@/components/ui/AppHeader.vue";
 export default {
     name: "stage.edit",
     components: {
-        AppUsersTables, AppRaceTable, TheStageStatus,
+        AppUsersTablesEdit, AppRaceTable, TheStageStatus,
         AppResultTable, AppLoader, AppEditor,
         AppHeader,
     },
@@ -121,7 +121,6 @@ export default {
 
         const statusGroup = ref();
         const resultComponent = ref();
-        const stageStatusComponent = ref();
 
         const statusGroupFetch = async (payload) => {
             try {
@@ -130,11 +129,7 @@ export default {
                 status.value = payload;
                 if(resultComponent.value) {
                     resultComponent.value.update();
-                }
-                if(stageStatusComponent.value) {
-                    stageStatusComponent.value.update();
-                }
-                
+                }        
             } catch (e) {
                 console.log(e.message);
             }
@@ -214,7 +209,7 @@ export default {
             register_start, register_end, race_start,
             title, excerpt, description,
             submit, users, status,
-            id, statusGroup, child, stageStatusComponent,
+            id, statusGroup, child,
             race_amount_drop, race_amount_group_drop, race_amount_fleet_drop,
             statusGroupFetch, usersFetch, resultComponent, h1,
             loading, participant_text,
