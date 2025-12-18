@@ -17,7 +17,7 @@
                     <div class="dashboard-item" v-if="stage && stage.description">
                         <div class="content" v-html="stage.description"></div>
                     </div>
-                    <div class="dashboard-item" v-if="stage && stage.status === 'active'">
+                    <div class="dashboard-item" v-if="stage && stage?.users?.length && stage.status === 'active'">
                         <AppUsersTables :users="stage.users"  />
                     </div>
                     <div class="dashboard-item" v-if="stage && stage.status !== 'active'">

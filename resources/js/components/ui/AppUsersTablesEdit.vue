@@ -41,11 +41,9 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, watch, computed } from "vue";
+import { ref, defineProps, defineEmits } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
 const store = useStore();
 
 const props = defineProps({

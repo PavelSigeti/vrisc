@@ -66,7 +66,7 @@
                             ></AppRaceTable>
                         </div>
 
-                        <TheStageStatus v-if="status !== 'active'" :status="status" :id="id" @update="statusGroupFetch" ref="stageStatusComponent"/>
+                        <TheStageStatus v-if="status !== 'active'" :status="status" :id="id" @update="statusGroupFetch"/>
 
                         <AppResultTable v-if="status !== 'active'" :id="id" ref="resultComponent" />
                     </div>
@@ -121,7 +121,6 @@ export default {
 
         const statusGroup = ref();
         const resultComponent = ref();
-        const stageStatusComponent = ref();
 
         const statusGroupFetch = async (payload) => {
             try {
@@ -130,11 +129,7 @@ export default {
                 status.value = payload;
                 if(resultComponent.value) {
                     resultComponent.value.update();
-                }
-                if(stageStatusComponent.value) {
-                    stageStatusComponent.value.update();
-                }
-                
+                }        
             } catch (e) {
                 console.log(e.message);
             }
@@ -214,7 +209,7 @@ export default {
             register_start, register_end, race_start,
             title, excerpt, description,
             submit, users, status,
-            id, statusGroup, child, stageStatusComponent,
+            id, statusGroup, child,
             race_amount_drop, race_amount_group_drop, race_amount_fleet_drop,
             statusGroupFetch, usersFetch, resultComponent, h1,
             loading, participant_text,

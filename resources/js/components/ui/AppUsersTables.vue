@@ -24,7 +24,7 @@ export default {
         users: {
             type: Array,
             default: null,
-                    }
+        }
     }
 }
 </script>
