@@ -3,33 +3,67 @@
 namespace App\Http\Repositories;
 
 
+use App\Models\Stage;
 use App\Models\StageResult as Model;
 use Illuminate\Support\Facades\DB;
 
 class StageResultRepository extends CoreRepository
 {
+    private const SEASON_START_MONTH = 11;
+
     protected function getModelClass()
     {
         return Model::class;
     }
 
-    public function getUsersRating()
+    public function getUsersRating(?int $year = null)
     {
         $columns = [
-            'nickname', 'name', 'surname',
-            'user_id', DB::raw('SUM(result) as total')
+            'users.nickname', 'users.name', 'users.surname',
+            'stage_results.user_id', DB::raw('SUM(stage_results.result) as total'),
         ];
 
-
-        $result = $this->startConditions()
+        return $this->startConditions()
             ->join('users', 'stage_results.user_id', '=', 'users.id')
+            ->whereHas('stage', function ($stage) use ($year) {
+                $stage->where('status', 'finished');
+                if ($year !== null) {
+                    $stage->where('race_start', '>=', $this->seasonStart($year));
+                    if ($year < 9999) {
+                        $stage->where('race_start', '<', $this->seasonStart($year + 1));
+                    }
+                }
+            })
             ->select($columns)
-            ->groupBy('user_id')
-            ->orderBy('total', 'DESC')
+            ->groupBy('stage_results.user_id', 'users.nickname', 'users.name', 'users.surname')
+            ->orderByDesc('total')
+            ->orderBy('stage_results.user_id')
             ->paginate(50);
+    }
 
+    public function getRatingYears(int $currentYear): array
+    {
+        return Stage::query()
+            ->where('status', 'finished')
+            ->where('race_start', '>=', $this->seasonStart(1000))
+            ->where('race_start', '<', $this->seasonStart($currentYear + 1))
+            ->pluck('race_start')
+            ->map(fn ($date) => $this->seasonStartYear((int) substr($date, 0, 4), (int) substr($date, 5, 2)))
+            ->merge([$currentYear, $currentYear - 1])
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
+    }
 
-        return $result;
+    public function seasonStartYear(int $year, int $month): int
+    {
+        return $month < self::SEASON_START_MONTH ? $year - 1 : $year;
+    }
+
+    private function seasonStart(int $year): string
+    {
+        return sprintf('%04d-%02d-01', $year, self::SEASON_START_MONTH);
     }
 
     public function getUniversityRating()
