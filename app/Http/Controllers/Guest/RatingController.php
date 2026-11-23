@@ -17,7 +17,8 @@ class RatingController extends Controller
 
     public function usersRating(Request $request)
     {
-        $currentYear = now()->year;
+        $today = now();
+        $currentYear = $this->stageResultRepository->seasonStartYear($today->year, $today->month);
         $filter = $request->validate([
             'year' => ['sometimes', 'required', 'regex:/\A(?:all|current|[1-9][0-9]{3})\z/'],
         ])['year'] ?? 'all';

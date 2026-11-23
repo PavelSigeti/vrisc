@@ -20,16 +20,16 @@ class SeasonRatingTest extends TestCase
             'database.connections.sqlite.database' => ':memory:',
         ]);
         $this->artisan('migrate')->assertExitCode(0);
-        $this->travelTo(Carbon::parse('2026-01-01 00:15:00', 'Europe/Moscow'));
+        $this->travelTo(Carbon::parse('2026-11-01 00:00:00', 'Europe/Moscow'));
     }
 
     public function test_current_season_shows_points_only_after_the_first_stage_finishes(): void
     {
         $tournament = Tournament::create(['title' => 'Cup', 'yacht' => 'Test']);
         $user = User::factory()->create(['university_id' => null]);
-        $previous = $this->stage($tournament, '2025-12-31 23:45:00');
+        $previous = $this->stage($tournament, '2026-10-31 23:59:59');
         $older = $this->stage($tournament, '2024-06-15 10:00:00');
-        $current = $this->stage($tournament, '2026-01-01T00:00', 'group');
+        $current = $this->stage($tournament, '2026-11-01T00:00', 'group');
 
         $this->recordResult($previous, $user, 6);
         $this->recordResult($older, $user, 4);
@@ -38,7 +38,7 @@ class SeasonRatingTest extends TestCase
         $this->getJson('/api/rating/users?year=current')
             ->assertOk()
             ->assertJsonPath('year', 2026)
-            ->assertJsonPath('years', [2026, 2025, 2024])
+            ->assertJsonPath('years', [2026, 2025, 2023])
             ->assertJsonCount(0, 'data');
         $this->getJson('/api/rating/users?year=2025')
             ->assertOk()
@@ -46,6 +46,13 @@ class SeasonRatingTest extends TestCase
         $this->getJson('/api/rating/users?year=all')
             ->assertOk()
             ->assertJsonPath('data.0.total', 10);
+
+        $this->travel(-1)->second();
+        $this->getJson('/api/rating/users?year=current')
+            ->assertOk()
+            ->assertJsonPath('year', 2025)
+            ->assertJsonPath('data.0.total', 6);
+        $this->travelTo(Carbon::parse('2026-11-01 00:00:00', 'Europe/Moscow'));
 
         $current->update(['status' => 'finished']);
 
@@ -55,12 +62,15 @@ class SeasonRatingTest extends TestCase
         $this->getJson('/api/rating/users')
             ->assertOk()
             ->assertJsonPath('data.0.total', 13);
+        $this->getJson('/api/rating/users?year=2025')
+            ->assertOk()
+            ->assertJsonPath('data.0.total', 6);
     }
 
     public function test_pagination_keeps_the_chosen_season(): void
     {
         $tournament = Tournament::create(['title' => 'Cup', 'yacht' => 'Test']);
-        $stage = $this->stage($tournament, '2025-06-10 10:00:00');
+        $stage = $this->stage($tournament, '2026-06-10 10:00:00');
         $users = User::factory()->count(51)->create(['university_id' => null]);
         StageResult::insert($users->map(fn ($user) => [
             'stage_id' => $stage->id,

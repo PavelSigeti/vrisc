@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 
 class StageResultRepository extends CoreRepository
 {
+    private const SEASON_START_MONTH = 11;
+
     protected function getModelClass()
     {
         return Model::class;
@@ -26,7 +28,10 @@ class StageResultRepository extends CoreRepository
             ->whereHas('stage', function ($stage) use ($year) {
                 $stage->where('status', 'finished');
                 if ($year !== null) {
-                    $stage->whereYear('race_start', $year);
+                    $stage->where('race_start', '>=', $this->seasonStart($year));
+                    if ($year < 9999) {
+                        $stage->where('race_start', '<', $this->seasonStart($year + 1));
+                    }
                 }
             })
             ->select($columns)
@@ -40,14 +45,25 @@ class StageResultRepository extends CoreRepository
     {
         return Stage::query()
             ->where('status', 'finished')
-            ->whereYear('race_start', '<=', $currentYear)
+            ->where('race_start', '>=', $this->seasonStart(1000))
+            ->where('race_start', '<', $this->seasonStart($currentYear + 1))
             ->pluck('race_start')
-            ->map(fn ($date) => (int) substr($date, 0, 4))
+            ->map(fn ($date) => $this->seasonStartYear((int) substr($date, 0, 4), (int) substr($date, 5, 2)))
             ->merge([$currentYear, $currentYear - 1])
             ->unique()
             ->sortDesc()
             ->values()
             ->all();
+    }
+
+    public function seasonStartYear(int $year, int $month): int
+    {
+        return $month < self::SEASON_START_MONTH ? $year - 1 : $year;
+    }
+
+    private function seasonStart(int $year): string
+    {
+        return sprintf('%04d-%02d-01', $year, self::SEASON_START_MONTH);
     }
 
     public function getUniversityRating()

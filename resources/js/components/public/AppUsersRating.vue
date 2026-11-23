@@ -5,7 +5,7 @@
             <label v-if="years.length" class="rating-season">
                 Сезон
                 <select class="form-input" :value="selectedYear" @change="changeSeason">
-                    <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+                    <option v-for="year in years" :key="year" :value="year">{{ year }}/{{ year + 1 }}</option>
                     <option value="all">Всё время</option>
                 </select>
             </label>
