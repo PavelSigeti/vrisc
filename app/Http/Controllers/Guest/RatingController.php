@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
 use App\Http\Repositories\StageResultRepository;
+use Illuminate\Http\Request;
 
 class RatingController extends Controller
 {
@@ -14,9 +15,24 @@ class RatingController extends Controller
         $this->stageResultRepository = app(StageResultRepository::class);
     }
 
-    public function usersRating()
+    public function usersRating(Request $request)
     {
-        return $this->stageResultRepository->getUsersRating();
+        $currentYear = now()->year;
+        $filter = $request->validate([
+            'year' => ['sometimes', 'required', 'regex:/\A(?:all|current|[1-9][0-9]{3})\z/'],
+        ])['year'] ?? 'all';
+
+        $year = match ($filter) {
+            'all' => 'all',
+            'current' => $currentYear,
+            default => (int) $filter,
+        };
+        $rating = $this->stageResultRepository->getUsersRating(is_int($year) ? $year : null);
+
+        return $rating->appends(['year' => $year])->toArray() + [
+            'year' => $year,
+            'years' => $this->stageResultRepository->getRatingYears($currentYear),
+        ];
     }
 
     public function universityRating()

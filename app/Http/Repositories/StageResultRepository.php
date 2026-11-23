@@ -3,6 +3,7 @@
 namespace App\Http\Repositories;
 
 
+use App\Models\Stage;
 use App\Models\StageResult as Model;
 use Illuminate\Support\Facades\DB;
 
@@ -13,23 +14,40 @@ class StageResultRepository extends CoreRepository
         return Model::class;
     }
 
-    public function getUsersRating()
+    public function getUsersRating(?int $year = null)
     {
         $columns = [
-            'nickname', 'name', 'surname',
-            'user_id', DB::raw('SUM(result) as total')
+            'users.nickname', 'users.name', 'users.surname',
+            'stage_results.user_id', DB::raw('SUM(stage_results.result) as total'),
         ];
 
-
-        $result = $this->startConditions()
+        return $this->startConditions()
             ->join('users', 'stage_results.user_id', '=', 'users.id')
+            ->whereHas('stage', function ($stage) use ($year) {
+                $stage->where('status', 'finished');
+                if ($year !== null) {
+                    $stage->whereYear('race_start', $year);
+                }
+            })
             ->select($columns)
-            ->groupBy('user_id')
-            ->orderBy('total', 'DESC')
+            ->groupBy('stage_results.user_id', 'users.nickname', 'users.name', 'users.surname')
+            ->orderByDesc('total')
+            ->orderBy('stage_results.user_id')
             ->paginate(50);
+    }
 
-
-        return $result;
+    public function getRatingYears(int $currentYear): array
+    {
+        return Stage::query()
+            ->where('status', 'finished')
+            ->whereYear('race_start', '<=', $currentYear)
+            ->pluck('race_start')
+            ->map(fn ($date) => (int) substr($date, 0, 4))
+            ->merge([$currentYear, $currentYear - 1])
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
     }
 
     public function getUniversityRating()

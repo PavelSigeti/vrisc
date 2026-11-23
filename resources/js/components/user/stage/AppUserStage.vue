@@ -12,13 +12,13 @@
             <span>Окончание регистрации: {{time(stage.register_end)}}</span>
             <span>Начало гонок: {{time(stage.race_start)}}</span>
         </div>
-        <div class="user-stage__info" v-if="time(stage.register_start) > now">
+        <div class="user-stage__info" v-if="stage.register_start > now">
             Регистрация не началась
         </div>
-        <div class="user-stage__info" v-else-if="time(stage.race_start) < now && stage.status !== 'finished'">
+        <div class="user-stage__info" v-else-if="stage.race_start <= now && stage.status !== 'finished'">
             Регата проходит
         </div>
-        <div v-else-if="stage.status === 'active' && time(stage.register_end) > now"
+        <div v-else-if="stage.status === 'active' && stage.register_end > now"
             :class="['btn', 'btn-settings-280', {'btn-default': !stage.users_exists}, {'btn-border': stage.users_exists}]"
             @click="toggleReg"
         >
@@ -36,8 +36,9 @@
 </template>
 
 <script>
-import {onBeforeUnmount, onMounted, ref} from 'vue';
+import {ref} from 'vue';
 import AppLoader from "../../ui/AppLoader.vue";
+import useMoscowDateTime from "@/composables/moscowDateTime.js";
 import {time} from "@/utils/time.js";
 import {useStore} from "vuex";
 
@@ -50,25 +51,12 @@ export default {
         'stage',
     ],
     setup(props) {
-        const getDate = () => {
-            const dateArr = new Date().toLocaleString("ru-RU", {timeZone: "Europe/Moscow"}).split(',');
-            now.value = `${dateArr[0]} ${dateArr[1]}`;
-        }
-
         const store = useStore();
         const stage = ref(props.stage);
 
         const loading = ref(false);
 
-        const now = ref();
-        onMounted(()=>{
-            getDate();
-        });
-
-        const updateTimeInterval = setInterval(getDate, 1000);
-        onBeforeUnmount(() => {
-            clearInterval(updateTimeInterval);
-        });
+        const now = useMoscowDateTime();
 
         const toggleReg = async () => {
             loading.value = true;
